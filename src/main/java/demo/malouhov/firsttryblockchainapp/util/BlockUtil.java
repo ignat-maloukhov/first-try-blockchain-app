@@ -54,7 +54,7 @@ public class BlockUtil {
         Block previousBlock;
         String hashTarget = new String(new char[difficulty]).replace('\0', '0');
         HashMap<String, TransactionOutput> tempUTXOs = new HashMap<String, TransactionOutput>(); //a temporary working list of unspent transactions at a given block state.
-        tempUTXOs.put(genesisTransaction.outputs.get(0).id, genesisTransaction.outputs.get(0));
+        tempUTXOs.put(genesisTransaction.getOutputs().get(0).getId(), genesisTransaction.getOutputs().get(0));
 
         //loop through blockchain to check hashes:
         for (int i = 1; i < blockchain.size(); i++) {
@@ -91,31 +91,31 @@ public class BlockUtil {
                     return false;
                 }
 
-                for (TransactionInput input : currentTransaction.inputs) {
-                    tempOutput = tempUTXOs.get(input.transactionOutputId);
+                for (TransactionInput input : currentTransaction.getInputs()) {
+                    tempOutput = tempUTXOs.get(input.getTransactionOutputId());
 
                     if (tempOutput == null) {
                         System.out.println("#Referenced input on Transaction(" + t + ") is Missing");
                         return false;
                     }
 
-                    if (input.UTXO.value != tempOutput.value) {
+                    if (input.getUTXO().getValue() != tempOutput.getValue()) {
                         System.out.println("#Referenced input Transaction(" + t + ") value is Invalid");
                         return false;
                     }
 
-                    tempUTXOs.remove(input.transactionOutputId);
+                    tempUTXOs.remove(input.getTransactionOutputId());
                 }
 
-                for (TransactionOutput output : currentTransaction.outputs) {
-                    tempUTXOs.put(output.id, output);
+                for (TransactionOutput output : currentTransaction.getOutputs()) {
+                    tempUTXOs.put(output.getId(), output);
                 }
 
-                if (currentTransaction.outputs.get(0).reciepient != currentTransaction.reciepient) {
+                if (currentTransaction.getOutputs().get(0).getReciepient() != currentTransaction.getReciepient()) {
                     System.out.println("#Transaction(" + t + ") output reciepient is not who it should be");
                     return false;
                 }
-                if (currentTransaction.outputs.get(1).reciepient != currentTransaction.sender) {
+                if (currentTransaction.getOutputs().get(1).getReciepient() != currentTransaction.getSender()) {
                     System.out.println("#Transaction(" + t + ") output 'change' is not sender.");
                     return false;
                 }
@@ -182,7 +182,7 @@ public class BlockUtil {
 
         List<String> previousTreeLayer = new ArrayList<String>();
         for (Transaction transaction : transactions) {
-            previousTreeLayer.add(transaction.transactionId);
+            previousTreeLayer.add(transaction.getTransactionId());
         }
         List<String> treeLayer = previousTreeLayer;
 

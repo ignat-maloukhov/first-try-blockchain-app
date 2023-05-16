@@ -9,14 +9,13 @@ import java.util.ArrayList;
 
 public class Transaction {
 
-    public String transactionId; //Contains a hash of transaction*
-    public PublicKey sender; //Senders address/public key.
-    public PublicKey reciepient; //Recipients address/public key.
-    public float value; //Contains the amount we wish to send to the recipient.
-    public byte[] signature; //This is to prevent anybody else from spending funds in our wallet.
-
-    public ArrayList<TransactionInput> inputs = new ArrayList<TransactionInput>();
-    public ArrayList<TransactionOutput> outputs = new ArrayList<TransactionOutput>();
+    private String transactionId; //Contains a hash of transaction*
+    private PublicKey sender; //Senders address/public key.
+    private PublicKey reciepient; //Recipients address/public key.
+    private float value; //Contains the amount we wish to send to the recipient.
+    private byte[] signature; //This is to prevent anybody else from spending funds in our wallet.
+    private ArrayList<TransactionInput> inputs = new ArrayList<TransactionInput>();
+    private ArrayList<TransactionOutput> outputs = new ArrayList<TransactionOutput>();
 
     private static int sequence = 0; //A rough count of how many transactions have been generated
 
@@ -28,6 +27,34 @@ public class Transaction {
         this.inputs = inputs;
     }
 
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public PublicKey getSender() {
+        return sender;
+    }
+
+    public PublicKey getReciepient() {
+        return reciepient;
+    }
+
+    public float getValue() {
+        return value;
+    }
+
+    public ArrayList<TransactionInput> getInputs() {
+        return inputs;
+    }
+
+    public ArrayList<TransactionOutput> getOutputs() {
+        return outputs;
+    }
+
     public boolean processTransaction() {
 
         if(!verifySignature()) {
@@ -37,7 +64,7 @@ public class Transaction {
 
         //Gathers transaction inputs (Making sure they are unspent):
         for(TransactionInput i : inputs) {
-            i.UTXO = MyFirstBlockchain.UTXOs.get(i.transactionOutputId);
+            i.setUTXO(MyFirstBlockchain.UTXOs.get(i.getTransactionOutputId()));
         }
 
         //Checks if transaction is valid:
@@ -55,13 +82,13 @@ public class Transaction {
 
         //Add outputs to Unspent list
         for(TransactionOutput o : outputs) {
-            MyFirstBlockchain.UTXOs.put(o.id , o);
+            MyFirstBlockchain.UTXOs.put(o.getId() , o);
         }
 
         //Remove transaction inputs from UTXO lists as spent:
         for(TransactionInput i : inputs) {
-            if(i.UTXO == null) continue; //if Transaction can't be found skip it
-            MyFirstBlockchain.UTXOs.remove(i.UTXO.id);
+            if(i.getUTXO() == null) continue; //if Transaction can't be found skip it
+            MyFirstBlockchain.UTXOs.remove(i.getUTXO().getId());
         }
 
         return true;
@@ -70,8 +97,8 @@ public class Transaction {
     public float getInputsValue() {
         float total = 0;
         for(TransactionInput i : inputs) {
-            if(i.UTXO == null) continue; //if Transaction can't be found skip it, This behavior may not be optimal.
-            total += i.UTXO.value;
+            if(i.getUTXO() == null) continue; //if Transaction can't be found skip it, This behavior may not be optimal.
+            total += i.getUTXO().getValue();
         }
         return total;
     }
@@ -89,7 +116,7 @@ public class Transaction {
     public float getOutputsValue() {
         float total = 0;
         for(TransactionOutput o : outputs) {
-            total += o.value;
+            total += o.getValue();
         }
         return total;
     }

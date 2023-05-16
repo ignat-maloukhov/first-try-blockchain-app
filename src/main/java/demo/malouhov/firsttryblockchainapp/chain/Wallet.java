@@ -9,12 +9,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Wallet {
-    public PrivateKey privateKey;
-    public PublicKey publicKey;
-    public HashMap<String, TransactionOutput> UTXOs = new HashMap<String, TransactionOutput>();
+    private PrivateKey privateKey;
+    private PublicKey publicKey;
+    private HashMap<String, TransactionOutput> UTXOs = new HashMap<String, TransactionOutput>();
 
     public Wallet() {
         generateKeyPair();
+    }
+
+    public PrivateKey getPrivateKey() {
+        return privateKey;
+    }
+
+    public PublicKey getPublicKey() {
+        return publicKey;
     }
 
     public void generateKeyPair() {
@@ -39,8 +47,8 @@ public class Wallet {
         for (Map.Entry<String, TransactionOutput> item : MyFirstBlockchain.UTXOs.entrySet()) {
             TransactionOutput UTXO = item.getValue();
             if (UTXO.isMine(publicKey)) {
-                UTXOs.put(UTXO.id, UTXO);
-                total += UTXO.value;
+                UTXOs.put(UTXO.getId(), UTXO);
+                total += UTXO.getValue();
             }
         }
         return total;
@@ -56,8 +64,8 @@ public class Wallet {
         float total = 0;
         for (Map.Entry<String, TransactionOutput> item : UTXOs.entrySet()) {
             TransactionOutput UTXO = item.getValue();
-            total += UTXO.value;
-            inputs.add(new TransactionInput(UTXO.id));
+            total += UTXO.getValue();
+            inputs.add(new TransactionInput(UTXO.getId()));
             if (total > value) break;
         }
 
@@ -65,7 +73,7 @@ public class Wallet {
         newTransaction.generateSignature(privateKey);
 
         for (TransactionInput input : inputs) {
-            UTXOs.remove(input.transactionOutputId);
+            UTXOs.remove(input.getTransactionOutputId());
         }
 
         return newTransaction;
